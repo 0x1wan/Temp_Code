@@ -1,0 +1,12 @@
+# Java
+*.class
+
+# Python
+__pycache__/
+*.py[cod]
+
+# C/C++
+*.exe
+*.out
+*.o
+*.obj
