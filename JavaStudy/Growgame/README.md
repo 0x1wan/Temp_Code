@@ -407,16 +407,22 @@ int SCode = (int) (hash % 997);
 시스템은 저장된 텍스트 파일을 역으로 읽어 들이는 복원 프로세스에서도 동일한 수학적 해시 메커니즘을 통한 교차 검증(Cross-Verification)을 수행한다. 사용자가 외부 편집기로 `.txt` 파일 내부의 스탯 수치를 단 1이라도 임의 조작(Forgery)하는 행위를 원천적으로 차단하기 위한 수학적 방어 메커니즘의 상세 구조는 다음과 같다.
 
 1. **가중 선형 결합 해시 함수 (Weighted Linear Combination Hash Function)**: `Adult` 인터페이스의 `makeinfo()`에 구현된 해시 공식은 개체의 고유 ID 및 5대 스탯 데이터 벡터 $\vec{X} = (x_1, x_2, x_3, x_4, x_5, x_6)$에 대하여 각각 서로 다른 고유한 소수(Prime Number) 가중치 세트 $P = \{3, 5, 7, 11, 13, 17\}$를 매핑하여 가중 선형 결합을 수행한다.
-   $$\text{Hash}( \vec{X} ) = 3x_1 + 5x_2 + 7x_3 + 11x_4 + 13x_5 + 17x_6$$
-   임의의 합성수가 아닌 소수를 승수로 사용하는 수학적 이유는 스탯 변수 간의 결합 시 발생할 수 있는 대칭성을 붕괴시키고 수치 간의 간섭을 최소화하여, 데이터의 미세한 변동이 해시 결과값의 거대한 비선형적 차이로 이어지도록 유도하기 위함이다.
+
+$$\text{Hash}( \vec{X} ) = 3x_1 + 5x_2 + 7x_3 + 11x_4 + 13x_5 + 17x_6$$
+
+임의의 합성수가 아닌 소수를 승수로 사용하는 수학적 이유는 스탯 변수 간의 결합 시 발생할 수 있는 대칭성을 붕괴시키고 수치 간의 간섭을 최소화하여, 데이터의 미세한 변동이 해시 결과값의 거대한 비선형적 차이로 이어지도록 유도하기 위함이다.
 
 2. **모듈러 축소 및 균등 분포 (Modular Reduction & Uniform Distribution)**: 산출된 거대한 `hash` 스칼라 값은 세 자리 수 중 가장 큰 소수인 $997$을 제수로 하는 모듈러 연산($\pmod{997}$)을 거쳐 $0$부터 $996$ 사이의 해시 공간(Hash Space)으로 축소된다.
-   $$\text{SCode} = \text{Hash}( \vec{X} ) \pmod{997}$$
-   수학적으로 소수 체계에서의 모듈러 연산은 나머지 값들이 특정 구간에 치우치지 않고 공간 내에 균등 분포(Uniform Distribution)를 이루도록 보장하므로, 해시 충돌(Hash Collision) 확률을 수학적으로 극단적으로 억제하는 탁월한 방어선 역할을 수행한다.
+
+$$\text{SCode} = \text{Hash}( \vec{X} ) \pmod{997}$$
+
+수학적으로 소수 체계에서의 모듈러 연산은 나머지 값들이 특정 구간에 치우치지 않고 공간 내에 균등 분포(Uniform Distribution)를 이루도록 보장하므로, 해시 충돌(Hash Collision) 확률을 수학적으로 극단적으로 억제하는 탁월한 방어선 역할을 수행한다.
 
 3. **런타임 교차 검증 루틴**: `Growgame.java` 엔진이 외부 세이브 데이터를 로드할 때, 복원된 파라미터 벡터를 기반으로 내부 샌드박스에서 $\text{SCode}_{\text{calc}}$를 재연산한다. 이후 파일 말단에 기록되어 있던 오리지널 $\text{SCode}_{\text{file}}$과의 대수적 일치 여부를 boolean 검증문으로 교차 판정한다.
-   $$\text{Verification} = \begin{cases} \text{True}, & \text{if } \text{SCode}_{\text{calc}} == \text{SCode}_{\text{file}} \\ \text{False}, & \text{if } \text{SCode}_{\text{calc}} \neq \text{SCode}_{\text{file}} \end{cases}$$
-   만약 단 하나의 스탯이라도 위변조되어 위 항등식이 성립하지 않는다면, 시스템은 메모리 오염을 방지하기 위해 데이터 적재를 즉시 전면 거부(Fail-Fast)하도록 설계되어 시스템의 무결성을 엄격하게 보장한다.
+
+$$\text{Verification} = \begin{cases} \text{True}, & \text{if } \text{SCode}_{\text{calc}} == \text{SCode}_{\text{file}} \\ \text{False}, & \text{if } \text{SCode}_{\text{calc}} \neq \text{SCode}_{\text{file}} \end{cases}$$
+
+만약 단 하나의 스탯이라도 위변조되어 위 항등식이 성립하지 않는다면, 시스템은 메모리 오염을 방지하기 위해 데이터 적재를 즉시 전면 거부(Fail-Fast)하도록 설계되어 시스템의 무결성을 엄격하게 보장한다.
 
 ---
 
