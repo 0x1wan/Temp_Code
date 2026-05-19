@@ -2,6 +2,9 @@ package InheritanceShapeDraw;
 //2022113960 최이완
 
 import java.util.Scanner;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 public class Main_geometry {
 	
@@ -17,6 +20,8 @@ public class Main_geometry {
 	        System.out.println ("* 5. Circle ");
 	        System.out.println ("* 6. All_Log ");
 	        System.out.println ("* 7. All_Log_Delete"); 
+	        System.out.println ("* 8. Save (result.txt)"); 
+	        System.out.println ("* 9. Load (result.txt)");
 	        System.out.println ("* Number + 'log' (ex: 1log, 2log)"); 
 	        System.out.println ("* 0. Quit ");
 	        System.out.println ("***************");
@@ -166,6 +171,58 @@ public class Main_geometry {
 	                //배열 초기화
 	            	cnt = -1;
 	                System.out.println("모든 도형 기록이 삭제되었습니다.");
+	            }
+	            else if (select.equals("8")) {
+	                // 파일 저장
+	                try {
+	                    if (cnt == -1) {
+	                        System.out.println("저장할 도형이 없습니다.");
+	                    } else {
+	                    	String content = "";
+	                    	for (int i = 0; i <= cnt; i++) {
+	                    	    // format: 타입 id 길이 길이2 패턴\n
+	                    	    content += sArr[i].Shapetype + " " 
+	                    	             + sArr[i].id + " " 
+	                    	             + sArr[i].length + " " 
+	                    	             + sArr[i].length2 + " " 
+	                    	             + sArr[i].pattern + "\n";
+	                    	}
+	                        // 기본적으로 덮어쓰기 수행 (이어쓰기로 코드를 짤 경우 , StandardOpenOption.APPEND 추가)
+	                        Files.writeString(Path.of("result.txt"), content.toString());
+	                        System.out.println("result.txt 파일에 성공적으로 저장되었습니다.");
+	                    }
+	                } catch (Exception e) {
+	                    System.out.println("파일 저장 중 오류가 발생했습니다: " + e.getMessage());//익셉션에서 오류 로그 때오기
+	                }
+	            }
+	            else if (select.equals("9")) {
+	                // 파일 불러오기
+	                try {
+	                    Scanner fileInput = new Scanner(Path.of("result.txt"));
+	                    cnt = -1; // 기존 배열 정보를 초기화하고 파일 내용으로 덮어씀
+	                    
+	                    while (fileInput.hasNextInt()) {
+	                        int type = fileInput.nextInt();
+	                        int id = fileInput.nextInt();
+	                        int len = fileInput.nextInt();
+	                        int len2 = fileInput.nextInt();
+	                        char pat = fileInput.next().charAt(0);
+	                        
+	                        cnt++;
+	                        // 불러온 타입에 맞춰서 다시 객체 생성
+	                        switch (type) {
+	                            case 1: sArr[cnt] = new Rectangle(id, len, len2, pat); break;
+	                            case 2: sArr[cnt] = new Triangle(id, len, pat); break;
+	                            case 3: sArr[cnt] = new Diamond(id, len, pat); break;
+	                            case 4: sArr[cnt] = new Hourglass(id, len, pat); break;
+	                            case 5: sArr[cnt] = new Circle(id, len, pat); break;
+	                        }
+	                    }
+	                    fileInput.close();
+	                    System.out.println("result.txt 파일에서 총 " + (cnt + 1) + "개의 도형을 불러왔습니다.");
+	                } catch (Exception e) {
+	                    System.out.println("파일을 찾을 수 없거나 불러오는 중 오류가 발생했습니다.");
+	                }
 	            }
 	            
 	            
